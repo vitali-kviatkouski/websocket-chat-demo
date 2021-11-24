@@ -1,0 +1,15 @@
+<div *ngFor="let item of chatSrc.chats | async" (click)="showChatMessages(item.id)">
+    {{item.id}} - {{item.name}}
+</div>
+<div *ngIf='chatId != null && loading'>
+Selected {{chatId}}, loading messages
+</div>
+<div *ngIf='chatId != null && !loading && messages'>
+List of messages:
+<div *ngFor="let message of messages.messages">
+    {{message}}
+</div>
+<input #newMessage type="text">
+<button (click)="sendMessage(chatId, newMessage.value)">send</button>
+<button (click)="sendMessageDirectly(chatId, newMessage.value)">force send</button>
+</div>

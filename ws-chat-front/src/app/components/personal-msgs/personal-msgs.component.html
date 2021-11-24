@@ -1,0 +1,10 @@
+<div>
+    Private msgs:
+    <div *ngFor="let msg of chatSrc.privateMsgs">
+      {{msg}}
+    </div>
+    Send private msg: <br>
+    Name:<input #username type="text"><br>
+    Text:<input #text type="text"><br>
+    <button (click)="chatSrc.sendMsgToUser(username.value, text.value)">send</button>
+  </div>

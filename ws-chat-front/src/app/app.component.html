@@ -1,35 +1,15 @@
-You are {{chatSrc.username}}
-<div>
-  <button (click)="callSupport()">call for support</button>
-  System msgs:
-  <div *ngFor="let msg of chatSrc.systemMsgs">
-    {{msg}}
-  </div>
-</div>
-<hr>
-<div *ngFor="let item of chatSrc.chats | async" (click)="showChatMessages(item.id)">
-  {{item.id}} - {{item.name}}
-</div>
-<div *ngIf='chatId != null && loading'>
-  Selected {{chatId}}, loading messages
-</div>
-<div *ngIf='chatId != null && !loading && messages'>
-  List of messages:
-  <div *ngFor="let message of messages.messages">
-    {{message}}
-  </div>
-  <input #newMessage type="text">
-  <button (click)="sendMessage(chatId, newMessage.value)">send</button>
-  <button (click)="sendMessageDirectly(chatId, newMessage.value)">force send</button>
-</div>
-<hr>
-<div>
-  Private msgs:
-  <div *ngFor="let msg of chatSrc.privateMsgs">
-    {{msg}}
-  </div>
-  Send private msg: <br>
-  Name:<input #username type="text"><br>
-  Text:<input #text type="text"><br>
-  <button (click)="chatSrc.sendMsgToUser(username.value, text.value)">send</button>
-</div>
+<mat-sidenav-container class="example-container">  
+  <mat-sidenav mode="side" opened fixedInViewport="true">
+    <mat-nav-list>
+      <a mat-list-item routerLink="/system-msgs">System Messages</a>
+      <a mat-list-item routerLink="/chats">Chats</a>
+      <a mat-list-item routerLink="/personal-msgs">Personal messages</a>
+  
+    </mat-nav-list>
+    
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <mat-toolbar>Hello {{chatSrc.username}}</mat-toolbar>
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>
