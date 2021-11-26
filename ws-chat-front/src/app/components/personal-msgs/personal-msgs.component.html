@@ -1,10 +1,30 @@
-<div>
-    Private msgs:
+ <mat-card>
+  <mat-card-title>Private msgs</mat-card-title>
+  <mat-card-subtitle>Send and view private messages here</mat-card-subtitle>
+  <mat-card-content>
+    Here goes list of messages sent to you:
     <div *ngFor="let msg of chatSrc.privateMsgs">
       {{msg}}
-    </div>
-    Send private msg: <br>
-    Name:<input #username type="text"><br>
-    Text:<input #text type="text"><br>
-    <button (click)="chatSrc.sendMsgToUser(username.value, text.value)">send</button>
-  </div>
+    </div>   
+    <div *ngIf="!chatSrc.privateMsgs">
+      No personal messages this far
+    </div>   
+  </mat-card-content>
+  <mat-card-actions>
+      <mat-divider></mat-divider>
+      Send private msg: <br>
+      <div>
+        <mat-form-field appearance="outline">
+          <input matInput placeholder="username" #username type="text">
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field appearance="outline">
+          <input matInput placeholder="message text" #text type="text">
+        </mat-form-field>
+        <button mat-raised-button (click)="chatSrc.sendMsgToUser(username.value, text.value)">
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
+  </mat-card-actions>
+</mat-card>
