@@ -1,12 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ChatsComponent } from './components/chats/chats.component';
+import { LoginComponent } from './components/login/login.component';
 import { PersonalMsgsComponent } from './components/personal-msgs/personal-msgs.component';
 import { SystemMsgsComponent } from './components/system-msgs/system-msgs.component';
 
 const routes: Routes = [{
   path: '',
-  redirectTo: '/system-msgs',
+  redirectTo: '/login',
   pathMatch: 'full'
 },{
   path: 'system-msgs',
@@ -17,6 +18,9 @@ const routes: Routes = [{
 },{
   path: 'personal-msgs',
   component: PersonalMsgsComponent
+},{
+  path: 'login',
+  component: LoginComponent
 },{
   path: '**',
   redirectTo: '/system-msgs'

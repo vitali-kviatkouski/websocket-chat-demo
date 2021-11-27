@@ -1,22 +1,28 @@
 package com.vk.websocket.wschat.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Preconditions;
 import com.vk.websocket.wschat.model.Chat;
 import com.vk.websocket.wschat.repo.ChatRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.socket.messaging.SessionConnectEvent;
+import org.springframework.web.socket.messaging.SessionConnectedEvent;
 
 import java.security.Principal;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -28,32 +34,38 @@ public class ChatsController {
     private SimpMessagingTemplate tpl;
 
     @SubscribeMapping("/chats/all")
-    public Chat[] getAllChats() {
-        // TODO: authorization here
-        log.info("Subscribed new user");
+    public Chat[] getAllChats(Principal principal) {
+        Preconditions.checkNotNull(principal, "Expected authenticated access");
+        log.info("Subscribed new user {}", principal);
         return chatRepo.getChats();
     }
 
     // explain the diff between with and without annotation @SendToUser
     @SubscribeMapping("/username")
     public String getUsername(Principal user) {
-        // TODO: authorization here
+        Preconditions.checkNotNull(user, "Expected authenticated access");
         return user.toString();
     }
 
     // explain the diff between with and without annotation @SendToUser
     @SubscribeMapping("/chats/system")
-    public String subscribeToSystem() {
-        // TODO: authorization here
+    public String subscribeToSystem(Principal user) {
+        Preconditions.checkNotNull(user, "Expected authenticated access");
         return "this is our bot channel, you'll receive important notifications here";
     }
 
     @SendToUser("/topic/chats/system") // explain the diff between with and without annotation (no diff)
     @MessageMapping("/chats/system")
-    public String messageToSystem(String request) {
-        // TODO: authorization here
+    public String messageToSystem(String request, Principal user) {
+        Preconditions.checkNotNull(user, "Expected authenticated access");
+        log.info("Got message from {}", user);
         if (request.equalsIgnoreCase("support")) {
-            return "Sorry, support unvaiable";
+            return "Sorry, support unavailable";
+        }
+        if (user.getName().equals("admin")) {
+            log.info("Sending admin message to all users from {}", user);
+            tpl.convertAndSend("/topic/chats/system", request);
+            return "Message sent to all";
         }
         return "did not understood you";
     }
@@ -98,6 +110,10 @@ public class ChatsController {
                          "From " + senderUser.toString() + ":" + msg);
     }
 
+    @SubscribeMapping("/login")
+    public String onLogin(Principal p) {
+        return String.valueOf(p != null);
+    }
 
     private MessageHeaders createHeaders(String sessionId) {
         SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);

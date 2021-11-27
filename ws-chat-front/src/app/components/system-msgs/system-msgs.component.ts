@@ -13,7 +13,16 @@ export class SystemMsgsComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  isAdmin(): boolean {
+    return this.chatSrc.username === 'admin';
+  }
+
   callSupport() {
     this.chatSrc.sendSupportRequest();
   }
+
+  sendSystemMessage(msg: string) {
+    this.chatSrc.sendSystemMessage(msg);
+  }
+
 }

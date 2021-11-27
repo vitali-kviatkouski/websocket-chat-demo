@@ -1,40 +1,30 @@
 package com.vk.websocket.wschat.config;
 
-import lombok.Data;
+import com.vk.websocket.wschat.repo.UserRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.security.Principal;
-import java.security.SecureRandom;
 import java.util.Map;
-import java.util.Random;
+
+import static org.springframework.web.context.request.RequestAttributes.SCOPE_REQUEST;
 
 @Slf4j
 public class CustomHandshakeHandler extends DefaultHandshakeHandler {
+
+    private UserRepo userRepo = new UserRepo();
+
     @Override
     protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
-        RandomPrincipal randomPrincipal = new RandomPrincipal();
-        log.info("Joined " + randomPrincipal);
-        return randomPrincipal;
-    }
-
-    @Data
-    private static class RandomPrincipal implements Principal {
-        private static final String[] NAMES = new String[] {"wolf", "giraffe", "lion", "eagle", "wartog", "mouse"};
-        private static Random R = new SecureRandom();
-
-        private String name = NAMES[R.nextInt(NAMES.length)] + R.nextInt(200);
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
+        var params = UriComponentsBuilder.fromHttpRequest(request).build().getQueryParams();
+        var login = params.getFirst("login");
+        var pwd = params.getFirst("password");
+        var user = userRepo.login(login, pwd);
+        return user.orElse(null);
     }
 }

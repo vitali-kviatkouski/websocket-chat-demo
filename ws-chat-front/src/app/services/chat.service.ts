@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CompatClient, Stomp } from '@stomp/stompjs';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import * as SockJS from 'sockjs-client';
 import { Chat } from './chat.domain';
 
@@ -11,22 +11,20 @@ export class ChatService {
   private url: string = "http://localhost:8080";
   public chats: BehaviorSubject<Chat[]> = new BehaviorSubject<Chat[]>([]);
   public chatMsgs: BehaviorSubject<Chat[]> = new BehaviorSubject<Chat[]>([]);
-  private stomp: CompatClient;
+  public authorizationLog: Subject<boolean> = new Subject<boolean>();
+  private stomp!: CompatClient;
   public systemMsgs: string[] = [];
   public privateMsgs: string[] = [];
   public username!: string;
   
-  constructor() { 
-    // // TODO: change (refresh) UI if
-    // // 1. Parent folder was deleted
-    // // 2. Direct child was created/deleted/modified
-    this.systemMsgs = [];
-    console.log("Prep for connection");
-     const socket = new SockJS(`${this.url}/chats-websocket`);
-     this.stomp = Stomp.over(socket);
-     this.stomp.debug = f => f;
-     this.stomp.connect({}, () => {
+  public login(login: string, password: string) {
+    const socket = new SockJS(`${this.url}/chats-websocket?login=${login}&password=${password}`);
+    this.stomp = Stomp.over(socket);
+    this.stomp.debug = f => f;
+    this.stomp.connect({}, () => {      
       console.log("connected");      
+      this.stomp.subscribe('/app/login', (msg)=> this.authorizationLog.next(msg.body==="true"));
+
       // handle personal system messages from other topics
       this.stomp.subscribe('/user/topic/chats/system', (msg)=> this.onSystemMessage(msg));
       // handle @SubscribeMapping handling
@@ -46,7 +44,11 @@ export class ChatService {
         console.log("Got chats", payload);
       });
     });
-  } 
+  }
+
+  public logout() {
+    this.stomp.disconnect();
+  }
 
   private onSystemMessage(message: any) {
     const payload = message.body;
@@ -90,4 +92,9 @@ export class ChatService {
   public sendSupportRequest() {
     this.stomp.send('/app/chats/system', {}, 'support');
   }
+
+  public sendSystemMessage(msg: string) {
+    this.stomp.send('/app/chats/system', {}, msg);
+  }
+
 }

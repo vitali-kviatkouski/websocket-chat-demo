@@ -6,6 +6,15 @@
         </div>      
     </mat-card-content>
     <mat-card-actions>
-        <button mat-button (click)="callSupport()">CALL SUPPORT</button>
+        <button *ngIf="!isAdmin()" mat-button (click)="callSupport()">CALL SUPPORT</button>
+        <ng-container *ngIf="isAdmin()">
+            <mat-form-field appearance="outline">
+                <input matInput placeholder="message text" #text type="text">
+            </mat-form-field>
+            <button mat-raised-button (click)="sendSystemMessage(text.value)">
+                <mat-icon>send</mat-icon>
+            </button>
+        </ng-container>
+  
     </mat-card-actions>
 </mat-card>

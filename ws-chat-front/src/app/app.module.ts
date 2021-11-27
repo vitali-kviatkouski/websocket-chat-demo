@@ -16,13 +16,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { SystemMsgsComponent } from './components/system-msgs/system-msgs.component';
 import { ChatsComponent } from './components/chats/chats.component';
 import { PersonalMsgsComponent } from './components/personal-msgs/personal-msgs.component';
+import { LoginComponent } from './components/login/login.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     SystemMsgsComponent,
     ChatsComponent,
-    PersonalMsgsComponent
+    PersonalMsgsComponent,
+    LoginComponent
   ],
   imports: [
     MatSidenavModule,

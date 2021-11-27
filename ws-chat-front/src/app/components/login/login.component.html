@@ -1,0 +1,15 @@
+Login:
+<div>
+    <mat-form-field appearance="outline">
+    <input matInput placeholder="username" #username type="text">
+    </mat-form-field>
+</div>
+<div>
+    <mat-form-field appearance="outline">
+    <input matInput placeholder="message text" #text type="text">
+    </mat-form-field>
+</div>
+<button mat-raised-button (click)="login(username.value, text.value)">
+    <mat-icon>send</mat-icon>
+</button>
+<div *ngIf="invalid">Credentials are invalid</div>
