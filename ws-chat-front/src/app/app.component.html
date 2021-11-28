@@ -9,7 +9,22 @@
     
   </mat-sidenav>
   <mat-sidenav-content>
-    <mat-toolbar>Hello {{chatSrc.username}}</mat-toolbar>
+    <mat-toolbar class="nav-bar">
+      <ng-container *ngIf="chatSrc.username != null">
+        Hello {{chatSrc.username}} &nbsp;        
+        <button mat-icon-button  (click)="logout()">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </ng-container>
+      <ng-container *ngIf="chatSrc.username == null">
+        <div>Please login</div>
+        <div>
+          <button mat-icon-button (click)="gotoLogin()" >
+            <mat-icon>login</mat-icon>
+          </button>
+        </div>
+      </ng-container>
+    </mat-toolbar>
     <router-outlet></router-outlet>
   </mat-sidenav-content>
 </mat-sidenav-container>

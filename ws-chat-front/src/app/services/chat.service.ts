@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CompatClient, Stomp } from '@stomp/stompjs';
+import { Client } from '@stomp/stompjs';
 import { BehaviorSubject, Subject } from 'rxjs';
 import * as SockJS from 'sockjs-client';
 import { Chat } from './chat.domain';
@@ -8,20 +8,33 @@ import { Chat } from './chat.domain';
   providedIn: 'root'
 })
 export class ChatService {
-  private url: string = "http://localhost:8080";
+  private useSockJs: boolean = true;
+  private sockJsUrl = "http://localhost:8080";
+  private websocketUrl = "ws://localhost:8080";
   public chats: BehaviorSubject<Chat[]> = new BehaviorSubject<Chat[]>([]);
   public chatMsgs: BehaviorSubject<Chat[]> = new BehaviorSubject<Chat[]>([]);
   public authorizationLog: Subject<boolean> = new Subject<boolean>();
-  private stomp!: CompatClient;
+  private stomp!: Client;
   public systemMsgs: string[] = [];
   public privateMsgs: string[] = [];
-  public username!: string;
+  public username!: string | null;
   
   public login(login: string, password: string) {
-    const socket = new SockJS(`${this.url}/chats-websocket?login=${login}&password=${password}`);
-    this.stomp = Stomp.over(socket);
-    this.stomp.debug = f => f;
-    this.stomp.connect({}, () => {      
+     //const socket = new SockJS(`${this.url}/chats-websocket?login=${login}&password=${password}`);
+     //this.stomp = Stomp.over(socket);
+    const socket = `${this.useSockJs ? this.sockJsUrl : this.websocketUrl}/chats-websocket?login=${login}&password=${password}`;
+    if (this.stomp != null) {
+      this.logout();
+    }
+    this.stomp = new Client({webSocketFactory: () => {
+      if (this.useSockJs) {
+        return new SockJS(socket);
+      } else {
+        return new WebSocket(socket);
+      }
+    }});
+    //this.stomp.debug = f => f;
+    this.stomp.onConnect = () => {      
       console.log("connected");      
       this.stomp.subscribe('/app/login', (msg)=> this.authorizationLog.next(msg.body==="true"));
 
@@ -43,11 +56,12 @@ export class ChatService {
         const payload = message.body;
         console.log("Got chats", payload);
       });
-    });
+    };
+    this.stomp.activate();
   }
 
   public logout() {
-    this.stomp.disconnect();
+    this.stomp.deactivate();
   }
 
   private onSystemMessage(message: any) {
@@ -78,23 +92,27 @@ export class ChatService {
   }
 
   public sendMsg(id: number, msg: string) {
-    this.stomp.send(`/app/chats/${id}`, {}, msg);
+    this.sendMessage(`/app/chats/${id}`, msg);
   }
 
   public sendMsgDirectly(id: number, msg: string) {
-    this.stomp.send(`/topic/chats/${id}`, {}, msg);
+    this.sendMessage(`/topic/chats/${id}`, msg);
   }
 
   public sendMsgToUser(user: string, msg: string) {
-    this.stomp.send(`/app/private/messages/${user}`, {}, msg);
+    this.sendMessage(`/app/private/messages/${user}`, msg);
   }
 
   public sendSupportRequest() {
-    this.stomp.send('/app/chats/system', {}, 'support');
+    this.sendMessage('/app/chats/system', 'support');
   }
 
   public sendSystemMessage(msg: string) {
-    this.stomp.send('/app/chats/system', {}, msg);
+    this.sendMessage('/app/chats/system', msg);
+  }
+
+  private sendMessage(topic: string, msg: string) {
+    this.stomp.publish({destination: topic, body: msg});
   }
 
 }

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { ChatState } from './services/chat.domain';
 import { ChatService } from './services/chat.service';
 
@@ -10,5 +11,16 @@ import { ChatService } from './services/chat.service';
 export class AppComponent {
   title = 'ws-chat-front';
 
-  constructor(public chatSrc: ChatService) {}
+  constructor(public chatSrc: ChatService,
+              private router: Router) {}
+
+  logout() {
+    this.chatSrc.logout();
+    this.chatSrc.username = null;
+    this.gotoLogin();
+  }
+
+  gotoLogin() {
+    this.router.navigate(['/login']);
+  }
 }
