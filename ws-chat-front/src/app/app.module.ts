@@ -11,12 +11,15 @@ import { MatListModule } from '@angular/material/list';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { SystemMsgsComponent } from './components/system-msgs/system-msgs.component';
 import { ChatsComponent } from './components/chats/chats.component';
 import { PersonalMsgsComponent } from './components/personal-msgs/personal-msgs.component';
 import { LoginComponent } from './components/login/login.component';
+import { FormsModule } from '@angular/forms';
+import { AuthorizedGuard } from './guards/authorized.guard';
 
 @NgModule({
   declarations: [
@@ -35,11 +38,13 @@ import { LoginComponent } from './components/login/login.component';
     MatCardModule,
     MatInputModule,
     MatButtonModule,
+    MatProgressBarModule,
     BrowserModule,
+    FormsModule,
     AppRoutingModule,
     BrowserAnimationsModule
   ],
-  providers: [ChatService],
+  providers: [ChatService, AuthorizedGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

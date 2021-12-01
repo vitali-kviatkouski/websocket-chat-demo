@@ -4,6 +4,7 @@ import { ChatsComponent } from './components/chats/chats.component';
 import { LoginComponent } from './components/login/login.component';
 import { PersonalMsgsComponent } from './components/personal-msgs/personal-msgs.component';
 import { SystemMsgsComponent } from './components/system-msgs/system-msgs.component';
+import { AuthorizedGuard } from './guards/authorized.guard';
 
 const routes: Routes = [{
   path: '',
@@ -11,19 +12,26 @@ const routes: Routes = [{
   pathMatch: 'full'
 },{
   path: 'system-msgs',
-  component: SystemMsgsComponent
+  component: SystemMsgsComponent,
+  canActivate: [AuthorizedGuard]
 },{
   path: 'chats',
-  component: ChatsComponent
+  component: ChatsComponent,
+  canActivate: [AuthorizedGuard]
 },{
   path: 'personal-msgs',
-  component: PersonalMsgsComponent
+  component: PersonalMsgsComponent,
+  canActivate: [AuthorizedGuard]
+},{
+  path: 'personal-msgs/:username',
+  component: PersonalMsgsComponent,
+  canActivate: [AuthorizedGuard]
 },{
   path: 'login',
   component: LoginComponent
 },{
   path: '**',
-  redirectTo: '/system-msgs'
+  redirectTo: '/login'
 }];
 
 @NgModule({

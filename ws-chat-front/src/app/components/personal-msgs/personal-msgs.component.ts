@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ChatService } from 'src/app/services/chat.service';
 
 @Component({
@@ -8,7 +9,12 @@ import { ChatService } from 'src/app/services/chat.service';
 })
 export class PersonalMsgsComponent implements OnInit {
 
-  constructor(public chatSrc: ChatService) { }
+  username: string | null;
+
+  constructor(public chatSrc: ChatService,
+              route: ActivatedRoute) {
+    this.username = route.snapshot.params['username'] ?? null;
+  }
 
   ngOnInit(): void {
   }

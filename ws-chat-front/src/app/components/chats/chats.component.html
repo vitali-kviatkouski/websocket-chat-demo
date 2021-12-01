@@ -16,7 +16,8 @@
                 <mat-card-subtitle>Chat messages go below:</mat-card-subtitle>
                 <mat-card-content>
                     <div *ngFor="let message of messages.messages">
-                        {{message}}
+                        <a [routerLink]="['/personal-msgs', message.user]" *ngIf="message.user != null">{{message.user}}:</a>
+                        {{message.message}}
                     </div>
                 </mat-card-content>
                 <mat-card-actions>

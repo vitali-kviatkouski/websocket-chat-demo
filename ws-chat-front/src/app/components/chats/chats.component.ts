@@ -23,7 +23,7 @@ export class ChatsComponent implements OnInit {
     if (id) {
       console.log(`Subscribing to ${id}`);
       this.chatSrc.subscribeToChat(id, (messages) => {
-        if (typeof messages === 'string') {
+        if (typeof messages === 'object') {
           console.log('Got messages');
           if (this.messages == null) {
             this.messages = new ChatState(id, [messages]);

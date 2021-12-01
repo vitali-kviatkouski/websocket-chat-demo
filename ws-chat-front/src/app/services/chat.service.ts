@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Client } from '@stomp/stompjs';
 import { BehaviorSubject, Subject } from 'rxjs';
 import * as SockJS from 'sockjs-client';
-import { Chat } from './chat.domain';
+import { Chat, Message } from './chat.domain';
 
 @Injectable({
   providedIn: 'root'
@@ -13,10 +13,10 @@ export class ChatService {
   private websocketUrl = "ws://localhost:8080";
   public chats: BehaviorSubject<Chat[]> = new BehaviorSubject<Chat[]>([]);
   public chatMsgs: BehaviorSubject<Chat[]> = new BehaviorSubject<Chat[]>([]);
-  public authorizationLog: Subject<boolean> = new Subject<boolean>();
+  public authorizationLog: Subject<boolean> = new BehaviorSubject<boolean>(false);
   private stomp!: Client;
   public systemMsgs: string[] = [];
-  public privateMsgs: string[] = [];
+  public privateMsgs: Message[] = [];
   public username!: string | null;
   
   public login(login: string, password: string) {
@@ -73,21 +73,21 @@ export class ChatService {
   private onPrivateMessage(message: any) {
     const payload = message.body;
     console.log("Got private personal message from another user: ", payload);
-    this.privateMsgs.push(payload);
+    this.privateMsgs.push(JSON.parse(payload));
   }
 
 
 
   public subscribeToChat(id: number, handler: (msg: any) => void) {
     this.stomp.subscribe(`/app/chats/${id}`, (message: any) => {
-      const messages: String[] = JSON.parse(message.body);
+      const messages: string[] = JSON.parse(message.body);
       handler(messages);
     });
     this.stomp.subscribe(`/topic/chats/${id}`, (message: any) => {
       console.log('Got message from subscription to /topic/chats ' + message.body);
       // not a json here
-      const msg: String = message.body;
-      handler(msg);
+      const msg: string = message.body;
+      handler(JSON.parse(msg));
     });
   }
 
@@ -99,7 +99,7 @@ export class ChatService {
     this.sendMessage(`/topic/chats/${id}`, msg);
   }
 
-  public sendMsgToUser(user: string, msg: string) {
+  public sendMsgToUser(user: string | null, msg: string) {
     this.sendMessage(`/app/private/messages/${user}`, msg);
   }
 
