@@ -64,6 +64,36 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
+            },
+            "dev1": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev1.ts"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "dev2": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev2.ts"
+                }
+              ],
+              "outputHashing": "all"
             }
           },
           "defaultConfiguration": "production"
@@ -76,6 +106,12 @@
             },
             "development": {
               "browserTarget": "ws-chat-front:build:development"
+            },
+            "dev1": {
+              "browserTarget": "ws-chat-front:build:dev1"
+            },
+            "dev2": {
+              "browserTarget": "ws-chat-front:build:dev2"
             }
           },
           "defaultConfiguration": "development"

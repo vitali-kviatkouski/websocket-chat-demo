@@ -84,13 +84,16 @@ public class ChatsController {
                              Principal user,
                              String msg) {
         log.info("Got message [{}] for chat {} from {}", msg, chatId, user);
-        chatRepo.getMessages(chatId).add(new Message(user.getName(), msg));
-        log.info("Sending to user " + sessionId);
         if (msg.toLowerCase().contains("wtf") || msg.toLowerCase().contains("hell")) {
+
             // session id require for non-identified user
             tpl.convertAndSendToUser(sessionId, "/topic/chats/system",
-                    "We've sent your message, but you should not use such words",
+                    "We won't send message with rude words",
                     createHeaders(sessionId));
+            return null;
+        } else {
+            chatRepo.getMessages(chatId).add(new Message(user.getName(), msg));
+            log.info("Sending to chat topic");
         }
         return new Message(user.getName(), msg); //instead could use tpl.convertAndSend(/topic/chats/id)
     }
