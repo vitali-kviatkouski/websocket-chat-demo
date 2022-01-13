@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Client } from '@stomp/stompjs';
+import { Client, StompSubscription } from '@stomp/stompjs';
 import { BehaviorSubject, Subject } from 'rxjs';
 import * as SockJS from 'sockjs-client';
+import { environment } from 'src/environments/environment';
 import { Chat, Message } from './chat.domain';
 
 @Injectable({
@@ -9,8 +10,8 @@ import { Chat, Message } from './chat.domain';
 })
 export class ChatService {
   private useSockJs: boolean = true;
-  private sockJsUrl = "http://localhost:8080";
-  private websocketUrl = "ws://localhost:8080";
+  private sockJsUrl = environment.sockJsUrl;
+  private websocketUrl = environment.websocketUrl;
   public chats: BehaviorSubject<Chat[]> = new BehaviorSubject<Chat[]>([]);
   public chatMsgs: BehaviorSubject<Chat[]> = new BehaviorSubject<Chat[]>([]);
   public authorizationLog: Subject<boolean> = new BehaviorSubject<boolean>(false);
@@ -78,12 +79,12 @@ export class ChatService {
 
 
 
-  public subscribeToChat(id: number, handler: (msg: any) => void) {
+  public subscribeToChat(id: number, handler: (msg: any) => void): StompSubscription {
     this.stomp.subscribe(`/app/chats/${id}`, (message: any) => {
       const messages: string[] = JSON.parse(message.body);
       handler(messages);
     });
-    this.stomp.subscribe(`/topic/chats/${id}`, (message: any) => {
+    return this.stomp.subscribe(`/topic/chats/${id}`, (message: any) => {
       console.log('Got message from subscription to /topic/chats ' + message.body);
       // not a json here
       const msg: string = message.body;
@@ -96,7 +97,7 @@ export class ChatService {
   }
 
   public sendMsgDirectly(id: number, msg: string) {
-    this.sendMessage(`/topic/chats/${id}`, msg);
+    this.sendMessage(`/topic/chats/${id}`, `{"message": "${msg}"}`);
   }
 
   public sendMsgToUser(user: string | null, msg: string) {
